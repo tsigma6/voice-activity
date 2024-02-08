@@ -13,7 +13,7 @@ const voiceActivity = nodecg.Replicant('voiceActivity', {
 });
 
 // Discord API
-const bot = new Discord.Client({"intents": [
+const bot = new Discord.Client({intents: [
 	Discord.GatewayIntentBits.MessageContent,
 	Discord.GatewayIntentBits.Guilds,
 	Discord.GatewayIntentBits.GuildMembers,
@@ -85,6 +85,13 @@ function UpdateCommentaryChannelMembers()
 		if (!userAvatar || userAvatar == null)
 			userAvatar = voiceMember.defaultAvatarURL; // Default avatar
 		voiceActivity.value.members[userID] = {userID: userID, name: voiceMember.displayName, avatar: userAvatar, isSpeaking: false};
+		log.info(userID + ' joined the channel.')
+	});
+
+	// Have to rethink this.
+	voiceDisconnect.forEach(userID => {
+		voiceActivity.value.members.delete(userID);
+		log.info(userID + ' left the channel.');
 	});
 }
 
@@ -122,15 +129,18 @@ function commandChannel(message) {
 				} catch (error) {
 					voiceChannelConnection.destroy();
 					voiceChannelConnection = null;
+					voiceActivity.value.members.clear();
 				}
 			});
 
 			voiceChannelConnection.receiver.speaking.on('start', (userID) => {
 				if (voiceActivity.value.members.has(userID))
 					voiceActivity.value.members[userID].speaking = true;
+					log.info(userID + ' has started speaking.')
 			}).on('end', (userID) => {
 				if (voiceActivity.value.members.has(userID))
 					voiceActivity.value.members[userID].speaking = true;
+					log.info(userID + ' has stopped speaking.')
 			});
 
 		}
@@ -142,6 +152,7 @@ function commandChannel(message) {
 			}
 			voiceChannelConnection.destroy();
 			voiceChannelConnection = null;
+			voiceActivity.value.members.clear();
 		}
 	}
 }
