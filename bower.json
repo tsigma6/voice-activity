@@ -1,7 +1,6 @@
 {
   "name": "kiio-podcast",
   "dependencies": {
-    "dragula.js": "Lange/dragula#sgdq2017",
     "EaselJS": "^1.0.2",
     "gsap": "~2.0.2",
     "iron-icon": "PolymerElements/iron-icon#^2.0.1",
